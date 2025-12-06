@@ -405,49 +405,36 @@ export default function ChessGame() {
             `
         }}>
 
-            {/* LOGO/BRAND HEADER */}
-            <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                padding: '16px 24px',
-                background: 'rgba(255, 255, 255, 0.95)',
-                borderBottom: '1px solid #e5e7eb',
-                backdropFilter: 'blur(10px)',
-                zIndex: 50,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                boxShadow: '0 1px 3px 0 rgba(0,0,0,0.1)'
-            }}>
+            {/* LOGO/BRAND HEADER - Only on start screen */}
+            {gameState === 'intro' && (
                 <div style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000',
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    padding: '16px 24px',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    borderBottom: '1px solid #e5e7eb',
+                    backdropFilter: 'blur(10px)',
+                    zIndex: 50,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    gap: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0,0,0,0.1)'
                 }}>
-                    <span style={{ fontSize: '32px' }}>♚</span>
-                    ChessBro
+                    <div style={{
+                        fontSize: '28px',
+                        fontWeight: 'bold',
+                        color: '#000',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                    }}>
+                        <span style={{ fontSize: '32px' }}>♚</span>
+                        ChessBro
+                    </div>
                 </div>
-                <div style={{
-                    marginLeft: 'auto',
-                    fontSize: '14px',
-                    color: '#6b7280',
-                    fontWeight: 500
-                }}>
-                    {gameState === 'playing' && (
-                        <span style={{
-                            color: '#3b82f6',
-                            fontWeight: 600
-                        }}>
-                            Game in Progress
-                        </span>
-                    )}
-                </div>
-            </div>
+            )}
 
             {/* START SCREEN */}
             {gameState === 'intro' && (
