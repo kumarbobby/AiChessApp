@@ -8,7 +8,7 @@ interface GameTimerProps {
 
 export default function GameTimer({ time, isActive, onTick }: GameTimerProps) {
     useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: ReturnType<typeof setInterval>;
 
         if (isActive && time > 0) {
             interval = setInterval(() => {

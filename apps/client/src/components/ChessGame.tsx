@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Chess, Move } from 'chess.js';
+import { Chess } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
 import Modal from './Modal';
 import PlayerCard from './PlayerCard';
 import MoveHistory from './MoveHistory';
-import CapturedPieces from './CapturedPieces';
 import StartScreen from './StartScreen';
 
 const API_URL = 'http://localhost:3000';
@@ -197,9 +196,11 @@ export default function ChessGame() {
 
         const newSquares: Record<string, { background: string; borderRadius?: string }> = {};
         moves.map((move) => {
+            const targetPiece = game.get(move.to as any);
+            const sourcePiece = game.get(square as any);
             newSquares[move.to] = {
                 background:
-                    game.get(move.to as any) && game.get(move.to as any).color !== game.get(square as any).color
+                    targetPiece && sourcePiece && targetPiece.color !== sourcePiece.color
                         ? 'radial-gradient(circle, rgba(0,0,0,.1) 85%, transparent 85%)'
                         : 'radial-gradient(circle, rgba(0,0,0,.1) 25%, transparent 25%)',
                 borderRadius: '50%',
@@ -287,8 +288,6 @@ export default function ChessGame() {
 
     function updateGame(newGame: Chess) {
         setGame(newGame);
-        const newFen = newGame.fen();
-        const history = newGame.history(); // Get SAN history
         // Wait, newGame.history() returns full history if game object preserved it.
         // Since we create 'new Chess(fen)', history is lost! 
         // FIX: We need to append the *latest move* to our local san history manually.
@@ -300,16 +299,16 @@ export default function ChessGame() {
     // Redefined update logic to take the Move object or SAN string
     function handleMove(newGame: Chess, moveSan: string) {
         setGame(newGame);
-        const newFen = newGame.fen();
+        const fen = newGame.fen();
 
         // Correct history slicing: If we were reviewing old moves, we overwrite the future
-        const newFenHistory = [...moveHistory.slice(0, currentMoveIndex + 1), newFen];
+        const newFenHistory = [...moveHistory.slice(0, currentMoveIndex + 1), fen];
         const newSanHistory = [...moveSanHistory.slice(0, currentMoveIndex), moveSan];
 
         setMoveHistory(newFenHistory);
         setMoveSanHistory(newSanHistory);
         setCurrentMoveIndex(newFenHistory.length - 1);
-        saveMove(newFen);
+        saveMove(fen);
     }
 
     // Replay Logic
