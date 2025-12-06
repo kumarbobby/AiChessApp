@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface CapturedPiecesProps {
     captures: string[]; // Array of captured piece types (e.g. ['p', 'n', 'q'])
 }

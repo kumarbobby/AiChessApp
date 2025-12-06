@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface MoveHistoryProps {
     moves: string[]; // Array of SAN moves (e.g. "e4", "Nf3")
