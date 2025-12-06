@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Chess, Move } from 'chess.js';
+import { Chess } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
 import Modal from './Modal';
 import PlayerCard from './PlayerCard';
 import MoveHistory from './MoveHistory';
-import CapturedPieces from './CapturedPieces';
 import StartScreen from './StartScreen';
 
 const API_URL = 'http://localhost:3000';
@@ -13,7 +12,6 @@ export default function ChessGame() {
     const [game, setGame] = useState(new Chess());
     const [boardSize, setBoardSize] = useState(600);
     const [gameId, setGameId] = useState<string | null>(null);
-    const [saveStatus, setSaveStatus] = useState('');
     const [moveFrom, setMoveFrom] = useState('');
     const [optionSquares, setOptionSquares] = useState({});
 
@@ -191,25 +189,6 @@ export default function ChessGame() {
             verbose: true,
         }) as any[]; // Cast to any because chess.js types can be tricky with verbose:true
 
-        if (moves.length === 0) {
-            return false;
-        }
-
-        const newSquares: Record<string, { background: string; borderRadius?: string }> = {};
-        moves.map((move) => {
-            newSquares[move.to] = {
-                background:
-                    game.get(move.to as any) && game.get(move.to as any).color !== game.get(square as any).color
-                        ? 'radial-gradient(circle, rgba(0,0,0,.1) 85%, transparent 85%)'
-                        : 'radial-gradient(circle, rgba(0,0,0,.1) 25%, transparent 25%)',
-                borderRadius: '50%',
-            };
-            return move;
-        });
-        newSquares[square] = {
-            background: 'rgba(255, 255, 0, 0.4)',
-        };
-        setOptionSquares(newSquares);
         return true;
     }
 
@@ -300,16 +279,16 @@ export default function ChessGame() {
     // Redefined update logic to take the Move object or SAN string
     function handleMove(newGame: Chess, moveSan: string) {
         setGame(newGame);
-        const newFen = newGame.fen();
+        const fen = newGame.fen();
 
         // Correct history slicing: If we were reviewing old moves, we overwrite the future
-        const newFenHistory = [...moveHistory.slice(0, currentMoveIndex + 1), newFen];
+        const newFenHistory = [...moveHistory.slice(0, currentMoveIndex + 1), fen];
         const newSanHistory = [...moveSanHistory.slice(0, currentMoveIndex), moveSan];
 
         setMoveHistory(newFenHistory);
         setMoveSanHistory(newSanHistory);
         setCurrentMoveIndex(newFenHistory.length - 1);
-        saveMove(newFen);
+        saveMove(fen);
     }
 
     // Replay Logic
