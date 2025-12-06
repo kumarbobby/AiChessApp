@@ -1,0 +1,16 @@
+{
+    "name": "ai-chess-app-monorepo",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "apps/*"
+    ],
+    "scripts": {
+        "dev": "concurrently \"npm run dev -w apps/client\" \"npm run dev -w apps/server\"",
+        "dev:client": "npm run dev -w apps/client",
+        "dev:server": "npm run dev -w apps/server"
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.1"
+    }
+}
