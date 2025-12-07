@@ -1,8 +1,6 @@
 {
     "buildCommand": "npm run build",
-    "buildOutput": {
-        "directory": "apps/client/dist"
-    },
+    "outputDirectory": "apps/client/dist",
     "installCommand": "npm install",
     "framework": null
 }
