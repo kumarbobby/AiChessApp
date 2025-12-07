@@ -18,7 +18,7 @@ A modern chess game with AI opponent built with React and Node.js.
 git clone https://github.com/kumarbobby/AiChessApp.git
 cd AiChessApp
 
-# Install dependencies (auto-installs for all workspaces)
+# Install dependencies for all workspaces
 npm install
 
 # Start development servers
