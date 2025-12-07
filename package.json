@@ -8,7 +8,8 @@
     "scripts": {
         "dev": "concurrently \"npm run dev -w apps/client\" \"npm run dev -w apps/server\"",
         "dev:client": "npm run dev -w apps/client",
-        "dev:server": "npm run dev -w apps/server"
+        "dev:server": "npm run dev -w apps/server",
+        "prepare": "npm install --workspaces"
     },
     "devDependencies": {
         "concurrently": "^9.2.1"
