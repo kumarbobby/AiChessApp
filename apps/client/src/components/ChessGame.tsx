@@ -6,7 +6,7 @@ import PlayerCard from './PlayerCard';
 import MoveHistory from './MoveHistory';
 import StartScreen from './StartScreen';
 
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://ai-chess-app-server-130wd51fp-kumarbobbys-projects.vercel.app';
 
 export default function ChessGame() {
     const [game, setGame] = useState(new Chess());
