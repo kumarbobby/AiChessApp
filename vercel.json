@@ -1,6 +1,6 @@
 {
     "buildCommand": "npm run build -w apps/client",
     "outputDirectory": "apps/client/dist",
-    "installCommand": "npm install --ignore-scripts",
+    "installCommand": "npm install",
     "framework": null
 }
