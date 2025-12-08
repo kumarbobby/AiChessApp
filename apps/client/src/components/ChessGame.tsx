@@ -6,7 +6,7 @@ import PlayerCard from './PlayerCard';
 import MoveHistory from './MoveHistory';
 import StartScreen from './StartScreen';
 
-const API_URL = 'https://ai-chess-app-server-130wd51fp-kumarbobbys-projects.vercel.app';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export default function ChessGame() {
     const [game, setGame] = useState(new Chess());
@@ -133,6 +133,7 @@ export default function ChessGame() {
     const makeAiMove = async () => {
         setIsAiThinking(true);
         try {
+            console.log('Making AI move request to:', `${API_URL}/api/ai-move`);
             const response = await fetch(`${API_URL}/api/ai-move`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -142,7 +143,14 @@ export default function ChessGame() {
                 }),
             });
 
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('AI move failed with status:', response.status, errorText);
+                throw new Error(`Server error: ${response.status}`);
+            }
+
             const data = await response.json();
+            console.log('AI move response:', data);
 
             if (data.success && data.bestMove) {
                 const newGame = new Chess(game.fen());
@@ -150,10 +158,15 @@ export default function ChessGame() {
 
                 if (move) {
                     handleMove(newGame, move.san);
+                } else {
+                    console.error('Invalid move from AI:', data.bestMove);
                 }
+            } else {
+                console.error('AI did not return a valid move:', data);
             }
         } catch (error) {
             console.error('AI move failed:', error);
+            alert('AI move failed. Please check the console for details.');
         } finally {
             setIsAiThinking(false);
         }
