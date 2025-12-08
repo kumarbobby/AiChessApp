@@ -1,5 +1,7 @@
 # ChessBro ♚
 
+🚀 **[Live Demo](https://ai-chess-app-client.vercel.app)** - Try it now!
+
 A modern chess game with AI opponent built with React and Node.js.
 
 ## Features
