@@ -56,22 +56,22 @@ export default function ChessGame() {
 
             if (isMobile) {
                 // Mobile: Use full width minus padding, account for player cards
-                const verticalReserve = 250; // Player cards + margins
+                const verticalReserve = 280; // Player cards + margins + extra buffer
                 const availableHeight = windowHeight - verticalReserve;
-                const availableWidth = windowWidth - 32; // 16px padding each side
+                const availableWidth = windowWidth - 40; // 20px padding each side
                 const size = Math.min(availableWidth, availableHeight);
                 setBoardSize(Math.max(280, Math.min(size, 500)));
             } else {
                 // Desktop: Reserve space for history panel if visible
-                const historyPanelWidth = showMoveHistory ? 320 : 0;
-                const horizontalReserve = historyPanelWidth + 40;
-                const verticalReserve = 200;
+                const historyPanelWidth = showMoveHistory ? 340 : 60; // History + margins
+                const verticalReserve = 240; // Player cards + margins + extra buffer
 
-                const availableWidth = windowWidth - horizontalReserve;
+                const availableWidth = windowWidth - historyPanelWidth;
                 const availableHeight = windowHeight - verticalReserve;
 
+                // Always use the minimum to prevent overflow
                 const size = Math.min(availableHeight, availableWidth);
-                const finalSize = Math.max(300, Math.min(size, 700));
+                const finalSize = Math.max(300, Math.min(size, 650));
                 setBoardSize(finalSize);
             }
         };
@@ -541,8 +541,8 @@ export default function ChessGame() {
                 {showMoveHistory && (
                     <div
                         className={`flex flex-col gap-3 ${isMobileView
-                                ? 'fixed inset-x-0 bottom-0 z-40 animate-slide-up'
-                                : 'relative'
+                            ? 'fixed inset-x-0 bottom-0 z-40 animate-slide-up'
+                            : 'relative'
                             }`}
                         style={{
                             width: isMobileView ? '100%' : '300px',
