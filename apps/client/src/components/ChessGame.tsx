@@ -484,7 +484,7 @@ export default function ChessGame() {
                     </div>
 
                     {/* BOARD WRAPPER */}
-                    <div className="relative shadow-2xl rounded-lg overflow-hidden ring-4"
+                    <div className="relative shadow-2xl rounded-lg ring-4"
                         style={{
                             width: `${boardSize}px`,
                             height: `${boardSize}px`,
@@ -493,18 +493,30 @@ export default function ChessGame() {
                             maxWidth: `${boardSize}px`,
                             maxHeight: `${boardSize}px`,
                             aspectRatio: '1 / 1',
-                            borderColor: 'rgba(255,255,255,0.3)'
+                            borderColor: 'rgba(255,255,255,0.3)',
+                            overflow: 'visible',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
                         }}>
 
-                        <Chessboard
-                            options={{
-                                position: game.fen(),
-                                onPieceDrop: onPieceDrop,
-                                onSquareClick: (args) => onSquareClick(args.square),
-                                squareStyles: optionSquares,
-                                allowDragging: gameState === 'playing' && currentMoveIndex === moveHistory.length - 1 && (!isAiMode || game.turn() === 'w'),
-                            }}
-                        />
+                        <div style={{
+                            width: '100%',
+                            height: '100%',
+                            position: 'relative',
+                            borderRadius: '8px',
+                            overflow: 'hidden'
+                        }}>
+                            <Chessboard
+                                options={{
+                                    position: game.fen(),
+                                    onPieceDrop: onPieceDrop,
+                                    onSquareClick: (args) => onSquareClick(args.square),
+                                    squareStyles: optionSquares,
+                                    allowDragging: gameState === 'playing' && currentMoveIndex === moveHistory.length - 1 && (!isAiMode || game.turn() === 'w'),
+                                }}
+                            />
+                        </div>
 
                         {/* Status Overlay */}
                         {game.inCheck() && !game.isGameOver() && (
@@ -541,8 +553,8 @@ export default function ChessGame() {
                 {showMoveHistory && (
                     <div
                         className={`flex flex-col gap-3 ${isMobileView
-                                ? 'fixed inset-x-0 bottom-0 z-40 animate-slide-up'
-                                : 'relative'
+                            ? 'fixed inset-x-0 bottom-0 z-40 animate-slide-up'
+                            : 'relative'
                             }`}
                         style={{
                             width: isMobileView ? '100%' : '300px',
