@@ -29,36 +29,57 @@ export default function ChessGame() {
     const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
     const [isAiThinking, setIsAiThinking] = useState(false);
 
+    // Mobile & UI State
+    const [isMobileView, setIsMobileView] = useState(false);
+    const [showMoveHistory, setShowMoveHistory] = useState(true);
+
     // Timers
     const [whiteTime, setWhiteTime] = useState(600); // 10 minutes
     const [blackTime, setBlackTime] = useState(600);
+
+    // Detect mobile view
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobileView(window.innerWidth < 768);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // Calculate board size
     useEffect(() => {
         const calculateSize = () => {
             const windowHeight = window.innerHeight;
             const windowWidth = window.innerWidth;
+            const isMobile = windowWidth < 768;
 
-            // Reserve space for: history panel + margins + player cards + controls
-            const historyPanelWidth = 320;
-            const horizontalReserve = historyPanelWidth + 40;
+            if (isMobile) {
+                // Mobile: Use full width minus padding, account for player cards
+                const verticalReserve = 250; // Player cards + margins
+                const availableHeight = windowHeight - verticalReserve;
+                const availableWidth = windowWidth - 32; // 16px padding each side
+                const size = Math.min(availableWidth, availableHeight);
+                setBoardSize(Math.max(280, Math.min(size, 500)));
+            } else {
+                // Desktop: Reserve space for history panel if visible
+                const historyPanelWidth = showMoveHistory ? 320 : 0;
+                const horizontalReserve = historyPanelWidth + 40;
+                const verticalReserve = 200;
 
-            // Reserve vertical space for player cards (2 x 70px) + padding + margins
-            const verticalReserve = 200;
+                const availableWidth = windowWidth - horizontalReserve;
+                const availableHeight = windowHeight - verticalReserve;
 
-            const availableWidth = windowWidth - horizontalReserve;
-            const availableHeight = windowHeight - verticalReserve;
-
-            // Board should use available space but maintain square aspect ratio
-            const size = Math.min(availableHeight, availableWidth);
-            const finalSize = Math.max(300, Math.min(size, 700)); // Min 300px, max 700px
-            setBoardSize(finalSize);
+                const size = Math.min(availableHeight, availableWidth);
+                const finalSize = Math.max(300, Math.min(size, 700));
+                setBoardSize(finalSize);
+            }
         };
 
         calculateSize();
         window.addEventListener('resize', calculateSize);
         return () => window.removeEventListener('resize', calculateSize);
-    }, []);
+    }, [showMoveHistory]);
 
     // Create new game in database
     useEffect(() => {
@@ -439,8 +460,8 @@ export default function ChessGame() {
                 </div>
             </Modal>
 
-            {/* YOUTUBE-STYLE LAYOUT: Board Priority + Chat */}
-            <div className="flex flex-row gap-4 w-full h-full" style={{
+            {/* RESPONSIVE LAYOUT: Board Priority */}
+            <div className={`flex ${isMobileView ? 'flex-col' : 'flex-row'} gap-4 w-full h-full`} style={{
                 padding: '10px',
                 minHeight: '100vh',
                 opacity: gameState === 'intro' ? 0 : 1,
@@ -516,84 +537,117 @@ export default function ChessGame() {
                     </div>
                 </div>
 
-                {/* RIGHT SIDEBAR: CHAT-STYLE HISTORY */}
-                <div className="flex flex-col gap-3" style={{
-                    width: '300px',
-                    flexShrink: 0,
-                    height: '100%',
-                    maxHeight: '100vh'
-                }}>
-                    <div className="flex flex-col gap-3 h-full" style={{
-                        backgroundColor: '#ffffff',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '16px',
-                        overflow: 'hidden',
-                        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)'
-                    }}>
-                        {/* Replay Controls */}
-                        <div className="flex justify-center gap-2 p-3" style={{ borderBottom: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
-                            <button
-                                onClick={() => handleMoveSelect(0)}
-                                className="p-2 rounded"
-                                style={{ backgroundColor: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db' }}
-                                title="Start"
-                            >
-                                ⇤
-                            </button>
-                            <button
-                                onClick={() => handleMoveSelect(currentMoveIndex - 1)}
-                                className="p-2 rounded"
-                                style={{ backgroundColor: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db' }}
-                                title="Previous"
-                            >
-                                ←
-                            </button>
-                            <button
-                                onClick={() => handleMoveSelect(currentMoveIndex + 1)}
-                                className="p-2 rounded"
-                                style={{ backgroundColor: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db' }}
-                                title="Next"
-                            >
-                                →
-                            </button>
-                            <button
-                                onClick={() => handleMoveSelect(moveHistory.length - 1)}
-                                className="p-2 rounded"
-                                style={{ backgroundColor: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db' }}
-                                title="Latest"
-                            >
-                                ⇥
-                            </button>
-                        </div>
-
-                        {/* Move History Component with Scroll */}
-                        <div className="flex-1" style={{
-                            overflowY: 'auto',
-                            overflowX: 'hidden',
-                            minHeight: 0
+                {/* MOVE HISTORY PANEL - Responsive */}
+                {showMoveHistory && (
+                    <div
+                        className={`flex flex-col gap-3 ${isMobileView
+                                ? 'fixed inset-x-0 bottom-0 z-40 animate-slide-up'
+                                : 'relative'
+                            }`}
+                        style={{
+                            width: isMobileView ? '100%' : '300px',
+                            height: isMobileView ? 'auto' : '100%',
+                            maxHeight: isMobileView ? '45vh' : '100vh',
+                            flexShrink: 0
+                        }}
+                    >
+                        <div className="flex flex-col gap-3 h-full" style={{
+                            backgroundColor: '#ffffff',
+                            border: isMobileView ? 'none' : '1px solid #e5e7eb',
+                            borderRadius: isMobileView ? '16px 16px 0 0' : '16px',
+                            borderTop: isMobileView ? '3px solid #374151' : undefined,
+                            overflow: 'hidden',
+                            boxShadow: isMobileView
+                                ? '0 -4px 6px -1px rgba(0,0,0,0.2), 0 -2px 4px -1px rgba(0,0,0,0.1)'
+                                : '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)'
                         }}>
-                            <MoveHistory
-                                moves={moveSanHistory}
-                                currentIndex={currentMoveIndex}
-                                onSelectMove={handleMoveSelect}
-                            />
-                        </div>
+                            {/* Replay Controls */}
+                            <div className="flex justify-center gap-2 p-3" style={{ borderBottom: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
+                                <button
+                                    onClick={() => handleMoveSelect(0)}
+                                    className="p-2 rounded"
+                                    style={{ backgroundColor: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db' }}
+                                    title="Start"
+                                >
+                                    ⇤
+                                </button>
+                                <button
+                                    onClick={() => handleMoveSelect(currentMoveIndex - 1)}
+                                    className="p-2 rounded"
+                                    style={{ backgroundColor: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db' }}
+                                    title="Previous"
+                                >
+                                    ←
+                                </button>
+                                <button
+                                    onClick={() => handleMoveSelect(currentMoveIndex + 1)}
+                                    className="p-2 rounded"
+                                    style={{ backgroundColor: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db' }}
+                                    title="Next"
+                                >
+                                    →
+                                </button>
+                                <button
+                                    onClick={() => handleMoveSelect(moveHistory.length - 1)}
+                                    className="p-2 rounded"
+                                    style={{ backgroundColor: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db' }}
+                                    title="Latest"
+                                >
+                                    ⇥
+                                </button>
+                            </div>
 
-                        <div className="p-3" style={{ borderTop: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
-                            <button
-                                onClick={quitGame}
-                                className="w-full py-2 rounded font-bold"
-                                style={{
-                                    backgroundColor: '#2a2a2a',
-                                    color: '#ff4444',
-                                    border: '1px solid #444'
-                                }}
-                            >
-                                Resign / Quit
-                            </button>
+                            {/* Move History Component with Scroll */}
+                            <div className="flex-1" style={{
+                                overflowY: 'auto',
+                                overflowX: 'hidden',
+                                minHeight: isMobileView ? '150px' : 0
+                            }}>
+                                <MoveHistory
+                                    moves={moveSanHistory}
+                                    currentIndex={currentMoveIndex}
+                                    onSelectMove={handleMoveSelect}
+                                />
+                            </div>
+
+                            <div className="p-3" style={{ borderTop: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
+                                <button
+                                    onClick={quitGame}
+                                    className="w-full py-2 rounded font-bold"
+                                    style={{
+                                        backgroundColor: '#2a2a2a',
+                                        color: '#ff4444',
+                                        border: '1px solid #444'
+                                    }}
+                                >
+                                    Resign / Quit
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
+
+                {/* TOGGLE HISTORY BUTTON - Shows when in playing state */}
+                {gameState === 'playing' && (
+                    <button
+                        onClick={() => setShowMoveHistory(!showMoveHistory)}
+                        className="fixed z-50 bg-white text-gray-800 rounded-full shadow-2xl hover:shadow-xl transition-all hover:scale-110"
+                        style={{
+                            bottom: isMobileView ? (showMoveHistory ? 'calc(45vh + 16px)' : '16px') : '24px',
+                            right: isMobileView ? '16px' : '24px',
+                            width: '56px',
+                            height: '56px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '20px',
+                            border: '2px solid #e5e7eb'
+                        }}
+                        title={showMoveHistory ? "Hide Move History" : "Show Move History"}
+                    >
+                        {showMoveHistory ? '✕' : '📜'}
+                    </button>
+                )}
 
             </div>
         </div>
