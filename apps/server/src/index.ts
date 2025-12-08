@@ -7,7 +7,14 @@ import { gameService } from './services/gameService';
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+// CORS configuration for production
+app.use(cors({
+    origin: process.env.FRONTEND_URL || '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -55,6 +62,7 @@ import { stockfishService } from './services/stockfishService';
 
 app.post('/api/ai-move', async (req, res) => {
     try {
+        console.log('AI move request:', { fen: req.body.fen, difficulty: req.body.difficulty });
         const { fen, difficulty } = req.body;
         if (!fen) {
             return res.status(400).json({ success: false, error: 'FEN string is required' });
@@ -65,9 +73,11 @@ app.post('/api/ai-move', async (req, res) => {
             (difficulty as 'easy' | 'medium' | 'hard') || 'medium'
         );
 
+        console.log('AI move response:', bestMove);
         res.json({ success: true, bestMove });
     } catch (error) {
         console.error('AI error:', error);
+        console.error('AI error stack:', error instanceof Error ? error.stack : 'Unknown error');
         res.status(500).json({ success: false, error: 'Failed to calculate move' });
     }
 });
